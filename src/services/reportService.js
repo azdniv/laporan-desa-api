@@ -21,6 +21,10 @@ const BASE_SELECT = `
 `;
 
 const getAll = async (ticketNumber) => {
+     const getById = async (id) => {
+     const result = await pool.query(`${BASE_SELECT} WHERE r.id = $1`, [id]);
+     return result.rows[0];
+   };
   const params = [];
   let where = '';
   if (ticketNumber) {
@@ -34,6 +38,11 @@ const getAll = async (ticketNumber) => {
   return result.rows;
 };
 
+   const getById = async (id) => {
+     const result = await pool.query(`${BASE_SELECT} WHERE r.id = $1`, [id]);
+     return result.rows[0];
+   };
+   
 // return null jika user_id tidak ada
 const create = async ({ user_id, category, title, description, location }) => {
   const user = await pool.query('SELECT id FROM users WHERE id = $1', [user_id]);
@@ -97,4 +106,4 @@ const remove = async (id) => {
   return result.rows[0];
 };
 
-module.exports = { getAll, create, respond, remove };
+module.exports = { getAll, getById, create, respond, remove };
