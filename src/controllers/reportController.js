@@ -22,6 +22,33 @@ const getReports = async (req, res) => {
   }
 };
 
+const getReportById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Validasi apakah ID berupa angka
+    if (!isValidId(id)) {
+      return sendError(res, 400, 'ID laporan tidak valid');
+    }
+
+    // Panggil service atau query database untuk mencari berdasarkan ID
+    const data = await reportService.getById(id); // Pastikan function getById sudah ada di reportService
+
+    if (!data) {
+      return sendError(res, 404, 'Laporan dengan ID tersebut tidak ditemukan');
+    }
+
+    res.status(200).json({ 
+      success: true, 
+      message: 'Detail laporan berhasil ditemukan', 
+      data 
+    });
+  } catch (err) {
+    console.error(err);
+    sendError(res, 500, 'Terjadi kesalahan pada server');
+  }
+};
+
 const createReport = async (req, res) => {
   try {
     const { user_id, category, title, description } = req.body;
@@ -83,4 +110,4 @@ const deleteReport = async (req, res) => {
   }
 };
 
-module.exports = { getReports, createReport, updateReport, deleteReport };
+module.exports = { getReports, getReportById, createReport, updateReport, deleteReport };

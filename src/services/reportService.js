@@ -34,6 +34,28 @@ const getAll = async (ticketNumber) => {
   return result.rows;
 };
 
+const getById = async (id) => {
+  const query = `
+    SELECT 
+      r.id,
+      r.ticket_number,
+      r.category,
+      r.title,
+      r.description,
+      r.location,
+      r.status,
+      r.created_at,
+      u.full_name AS reporter_name,
+      u.rt,
+      u.rw
+    FROM reports r
+    LEFT JOIN users u ON r.user_id = u.id
+    WHERE r.id = $1
+  `;
+  const result = await pool.query(query, [id]);
+  return result.rows[0] || null;
+};
+
 // return null jika user_id tidak ada
 const create = async ({ user_id, category, title, description, location }) => {
   const user = await pool.query('SELECT id FROM users WHERE id = $1', [user_id]);
@@ -97,4 +119,4 @@ const remove = async (id) => {
   return result.rows[0];
 };
 
-module.exports = { getAll, create, respond, remove };
+module.exports = { getAll, getById, create, respond, remove };
