@@ -6,12 +6,12 @@ const BASE_SELECT = `
          u.full_name AS reporter_name, u.rt, u.rw,
          COALESCE((
            SELECT json_agg(json_build_object(
-                    'id', s.id,
-                    'response_text', s.response_text,
-                    'new_status', s.new_status,
-                    'admin_name', a.full_name,
-                    'created_at', s.created_at
-                  ) ORDER BY s.created_at)
+                     'id', s.id,
+                     'response_text', s.response_text,
+                     'new_status', s.new_status,
+                     'admin_name', a.full_name,
+                     'created_at', s.created_at
+                   ) ORDER BY s.created_at)
              FROM responses s
              JOIN users a ON a.id = s.admin_id
             WHERE s.report_id = r.id
@@ -35,24 +35,10 @@ const getAll = async (ticketNumber) => {
 };
 
 const getById = async (id) => {
-  const query = `
-    SELECT 
-      r.id,
-      r.ticket_number,
-      r.category,
-      r.title,
-      r.description,
-      r.location,
-      r.status,
-      r.created_at,
-      u.full_name AS reporter_name,
-      u.rt,
-      u.rw
-    FROM reports r
-    LEFT JOIN users u ON r.user_id = u.id
-    WHERE r.id = $1
-  `;
-  const result = await pool.query(query, [id]);
+  const result = await pool.query(
+    `${BASE_SELECT} WHERE r.id = $1`,
+    [id]
+  );
   return result.rows[0] || null;
 };
 
@@ -96,7 +82,7 @@ const respond = async (reportId, { admin_id, response_text, new_status }) => {
 
     const inserted = await client.query(
       `INSERT INTO responses (report_id, admin_id, response_text, new_status)
-       VALUES ($1, $2, $3, $4) RETURNING *`,
+        VALUES ($1, $2, $3, $4) RETURNING *`,
       [reportId, admin_id, response_text, new_status || null]
     );
 

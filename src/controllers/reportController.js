@@ -9,13 +9,17 @@ const isValidId = (id) => /^\d+$/.test(String(id));
 
 const getReports = async (req, res) => {
   try {
-    const { ticket_number } = req.query;
-    const data = await reportService.getAll(ticket_number);
+    // Bisa mendeteksi parameter query seperti ?search=infrastruktur atau ?ticket_number=...
+    const { search, ticket_number } = req.query;
+    const keyword = search || ticket_number;
+    
+    const data = await reportService.getAll(keyword);
 
-    if (ticket_number && data.length === 0) {
-      return sendError(res, 404, 'Laporan dengan nomor tiket tersebut tidak ditemukan');
-    }
-    res.status(200).json({ success: true, message: 'Data laporan berhasil diambil', data });
+    res.status(200).json({ 
+      success: true, 
+      message: 'Data laporan berhasil diambil', 
+      data 
+    });
   } catch (err) {
     console.error(err);
     sendError(res, 500, 'Terjadi kesalahan pada server');
